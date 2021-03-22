@@ -3,9 +3,6 @@
 <br />
 <p align="center">
     <br />
-    <a href="https://github.com/SimonsaysNL/Mando-intro/"><strong>Explore the docs »</strong></a>
-    <br />
-    <br />
     <a href="https://github.com/SimonsaysNL/Mando-intro/">View Demo</a>
     ·
     <a href="https://github.com/SimonsaysNL/Mando-intro/issues">Report Bug</a>
