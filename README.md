@@ -1,20 +1,16 @@
-# Mando-intro
+# Mando-intro - Work in Progress
 
 <br />
 <p align="center">
-  <h3 align="center">Mando Intro</h3>
-
-  <p align="center">
-    project_description
     <br />
-    <a href="https://github.com/github_username/repo_name"><strong>Explore the docs »</strong></a>
+    <a href="https://github.com/SimonsaysNL/Mando-intro/"><strong>Explore the docs »</strong></a>
     <br />
     <br />
-    <a href="https://github.com/github_username/repo_name">View Demo</a>
+    <a href="https://github.com/SimonsaysNL/Mando-intro/">View Demo</a>
     ·
-    <a href="https://github.com/github_username/repo_name/issues">Report Bug</a>
+    <a href="https://github.com/SimonsaysNL/Mando-intro/issues">Report Bug</a>
     ·
-    <a href="https://github.com/github_username/repo_name/issues">Request Feature</a>
+    <a href="https://github.com/SimonsaysNL/Mando-intro/issues">Request Feature</a>
   </p>
 </p>
 
@@ -41,9 +37,10 @@
 
 [![Product Name Screen Shot][product-screenshot]](https://example.com)
 
-Here's a blank template to get started:
-**To avoid retyping too much info. Do a search and replace with your text editor for the following:**
-`github_username`, `repo_name`, `twitter_handle`, `email`, `project_title`, `project_description`
+This is a try at recreating the "The Mandalorian" brand intro in realtime in a browser.
+Several 3d models are loaded in and light and animation is speified for each one.
+A Mix shader is used to blend scenes during transitions.
+At the end a svg logo is shown with light effects to mimic the new logo.
 
 
 ### Built With
