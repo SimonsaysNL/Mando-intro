@@ -38,17 +38,15 @@
 [![Product Name Screen Shot][product-screenshot]](https://example.com)
 
 This is a try at recreating the "The Mandalorian" brand intro in realtime in a browser.
-Several 3d models are loaded in and light and animation is speified for each one.
-A Mix shader is used to blend scenes during transitions.
+Several 3d models are loaded in and light and animation is specified for each one.
+A mix shader is used to blend scenes during transitions.
 At the end a svg logo is shown with light effects to mimic the new logo.
 
 
 ### Built With
 
-* []()
-* []()
-* []()
-
+* [Threejs](https://threejs.org/)
+* [Blender](https://www.blender.org/)
 
 
 <!-- CONTACT -->
