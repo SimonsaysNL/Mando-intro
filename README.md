@@ -1,4 +1,4 @@
-# Mando-intro - Work in Progress
+# Mando intro - Work in Progress
 
 <br />
 <p align="center">
