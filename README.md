@@ -1,4 +1,5 @@
 # Mando intro - Work in Progress
+## Animation - Lighting - Transitions - Reflections
 
 <br />
 <p align="center">
@@ -43,6 +44,7 @@ At the end a svg logo is shown with light effects to mimic the new logo.
 ### Built With
 
 * [Threejs](https://threejs.org/)
+* [GSAP](https://greensock.com/gsap/)
 * [Blender](https://www.blender.org/)
 
 
