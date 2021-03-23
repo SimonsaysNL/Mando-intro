@@ -4,7 +4,7 @@
 <br />
 <p align="center">
     <br />
-    <a href="https://raw.githubusercontent.com/SimonsaysNL/Mando-intro/intro/index.html">View Demo</a>
+    <a href="https://raw.githack.com/SimonsaysNL/Mando-intro/master/intro/index.html">View Demo</a>
     ·
     <a href="https://github.com/SimonsaysNL/Mando-intro/issues">Report Bug</a>
     ·
