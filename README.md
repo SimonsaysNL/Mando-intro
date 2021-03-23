@@ -33,7 +33,7 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-[![Product Name Screen Shot][product-screenshot]](https://example.com)
+![](mando-preview.gif)
 
 This is a try at recreating the "The Mandalorian" brand intro in realtime in a browser.
 Several 3d models are loaded in and light and animation is specified for each one.
