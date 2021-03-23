@@ -10,21 +10,20 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.5.1/gsap.min.js"></script>
         <script src="./devtool.js"></script>
 
-
 		<script type="module">
 
-			import * as THREE from '../build/three.module.js';
+            import * as THREE from '../build/three.module.js';
             import { GLTFLoader } from './jsm/loaders/GLTFLoader.js';
             import { GUI } from './jsm/libs/dat.gui.module.js';
 			import Stats from './jsm/libs/stats.module.js';
-			import { RectAreaLightHelper } from './jsm/helpers/RectAreaLightHelper.js';
-			import { RectAreaLightUniformsLib } from './jsm/lights/RectAreaLightUniformsLib.js';
+            import { RectAreaLightHelper } from './jsm/helpers/RectAreaLightHelper.js';
+            import { RectAreaLightUniformsLib } from './jsm/lights/RectAreaLightUniformsLib.js';
             import { BufferGeometryUtils } from './jsm/utils/BufferGeometryUtils.js';
             import { SVGLoader } from './jsm/loaders/SVGLoader.js';
 
-			let renderer, scene, camera;
+            let renderer, scene, camera;
 
-			const origin = new THREE.Vector3();
+            const origin = new THREE.Vector3();
             let matStdObjects;
             let settings;
             let tlScale = 1;
