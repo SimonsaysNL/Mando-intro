@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>three.js - mando intro</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<link type="text/css" rel="stylesheet" href="main.css">
+	</head>
+	<body>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.5.1/gsap.min.js"></script>
+        <script src="./devtool.js"></script>
+
+
+		<script type="module">
+
+			import * as THREE from '../build/three.module.js';
+            import { GLTFLoader } from './jsm/loaders/GLTFLoader.js';
+            import { GUI } from './jsm/libs/dat.gui.module.js';
+			import Stats from './jsm/libs/stats.module.js';
+			import { RectAreaLightHelper } from './jsm/helpers/RectAreaLightHelper.js';
+			import { RectAreaLightUniformsLib } from './jsm/lights/RectAreaLightUniformsLib.js';
+            import { BufferGeometryUtils } from './jsm/utils/BufferGeometryUtils.js';
+            import { SVGLoader } from './jsm/loaders/SVGLoader.js';
+
+			let renderer, scene, camera;
+
+			const origin = new THREE.Vector3();
+            let matStdObjects;
+            let settings;
+            let tlScale = 1;
+
+//          let windowWidth = window.innerWidth;
+//          let windowHeight = window.innerHeight;
+            
+            let windowWidth = 1920;
+            let windowHeight = 582;
+            
+            let sceneA, sceneB;
+            let scenes = {};
+            let logoscene = new THREE.Scene();
+            let logocamera = new THREE.PerspectiveCamera( 75, windowWidth / windowHeight, 0.1, 1000 );
+            const svgGroup = new THREE.Group();
+            
+//			let topLight;
+            let fillLight1;
+            let fillLight2;
+            let rectLight = {}; 
+            let topLightHelper, rectLightHelper, fillLight1Helper, fillLight2Helper;
+            
+            let light1 = new THREE.PointLight( 0xff0000, 2, 0 );
+            let light1_2 = new THREE.PointLight( 0xfffff, 2, 0 );
+            let light1_3 = new THREE.PointLight( 0xfffff, 2, 0 );
+            let light2 = new THREE.PointLight( 0x103CAB, 2, 0 );
+            let light3 = new THREE.PointLight( 0xff0000, 2, 0 );
+            let light4 = new THREE.PointLight( 0xff0000, 2, 0 );
+            let light4_2 = new THREE.PointLight( 0xffffff, 2, 0 );
+            let light4_3 = new THREE.PointLight( 0xffffff, 2, 0 );
+            let light5 = new THREE.PointLight( 0xff0000, 2, 0 );
+            let light5_2 = new THREE.PointLight( 0xffffff, 2, 0 );
+            let light5_3 = new THREE.PointLight( 0xffffff, 2, 0 );
+            
+            let frontlight = new THREE.RectAreaLight( 0x5F431B, 0, 1250, 200 );
+            
+            let frontlightHelper = new RectAreaLightHelper( frontlight );
+            
+            let loaded = {};
+
+			let param = {};
+			let stats;
+            let sceneparam = {};
+            
+            let showlogo = false;
+            let rndrstop = false;
+            let svgfile = "textures/logo.svg";
+            
+            let transition;
+            const transitionParams = {
+				"useTexture": false,
+				"transition": 1,
+				"transitionSpeed": 10,
+				"texture": 5,
+				"loopTexture": true,
+				"animateTransition": true,
+				"textureThreshold": 0.3,
+                "pause": false,
+                "play": true,
+                "restart": false,
+                "timeline": 0,
+                "volume": 1
+			};
+            
+            let tl;
+            let soundtl;
+            let fadetl;
+            let tltimer = 0;
+            
+            const listener = new THREE.AudioListener();
+            logocamera.add( listener );
+            
+            const sound = new THREE.Audio( listener );
+            
+            const audioLoader = new THREE.AudioLoader();
+            audioLoader.load( 'audio/background.mp3', function( buffer ) {
+                sound.setBuffer( buffer );
+                sound.setLoop( false );
+                sound.playbackRate = tlScale;
+                sound.setVolume( transitionParams.volume );
+            });
+            
+            sceneparam = { 
+                a: {
+                    modelpath: 'models/vader/', //filepath
+                    modelfile: '1.gltf',   //file
+                    color: 0xff0000,            //lightsaber color
+                    from: -20,                  //saber movement from x
+                    to: 20,                     //saber movement to x
+                    yfrom:0,                    //saber movement from y
+                    yto:0,                      //saber movement to y
+                    rotfrom:0,                  //saber rotation from
+                    rotto:0,                    //saber rotation to
+                    //size: 1.3,                //model size
+                    size: 6,                    //model size
+                    smooth: 1,                  //model smoothing on (1) or off (0)
+                    time: 1,                    //tl segment time
+                    transition: 0,              //transition time offset from end
+                    speed: 1,                   //lightsaber movement speed
+                    posx: 0,                    //position on x
+                    posy: 0,                  // 0.2 //position on y
+                    posz: 0,                    //position on z
+                    rotation: -90                 //model rotation x
+                },
+                b: {
+                    modelpath: 'models/bb8/',
+                    modelfile: '2.gltf',
+                    color: 0x103CAB,
+                    from: -20,
+                    to: 20,
+                    yfrom:-10,
+                    yto:20,
+                    rotfrom:0,
+                    rotto: -45,
+                    size: 6,
+                    smooth: 1,
+                    time: 1,
+                    transition: 0,
+                    speed: 1,
+                    posx: 0,
+                    posy: 0,
+                    posz: 0,
+                    rotation: -90                 //model rotation x
+                },
+                c: {
+                    modelpath: 'models/c3po/',
+                    modelfile: '3.gltf',
+                    color: 0x103CAB,
+                    from: 20,
+                    to: -20,
+                    yfrom:0,
+                    yto:0,
+                    rotfrom:0,
+                    rotto:0,
+                    //size: 0.13,
+                    size: 6,
+                    smooth: 1,
+                    time: 1,
+                    transition: 0,
+                    speed: 1,
+                    posx: 0,
+                    posy: 0,
+                    posz: 0,
+                    rotation: -90                 //model rotation x
+                },
+                d: {
+                    modelpath: 'models/kylo/',
+                    modelfile: '4.gltf',
+                    color: 0xff0000,
+                    from: 20,
+                    to: -20,
+                    yfrom:0,
+                    yto:0,
+                    rotfrom:0,
+                    rotto:0,
+                    //size: 2,
+                    size: 6,
+                    smooth: 1,
+                    time: 1,
+                    transition: 0,
+                    speed: 1,
+                    posx: 0,
+                    posy: 0,
+                    posz: 0,
+                    rotation: -90                 //model rotation x
+                },
+                e: {
+                    modelpath: 'models/r2d2/',
+                    modelfile: '5.gltf',
+                    color: 0x103CAB,
+                    from: -20,
+                    to: 20,
+                    yfrom:0,
+                    yto:0,
+                    rotfrom:0,
+                    rotto:0,
+                    size: 6,
+                    smooth: 1,
+                    time: 1,
+                    transition: 0,
+                    speed: 1,
+                    posx: 0,
+                    posy: 0,
+                    posz: 0,
+                    rotation: -90                 //model rotation x
+                },
+                f: {
+                    modelpath: 'models/pilot/',
+                    modelfile: '6.gltf',
+                    color: 0x103CAB,
+                    from: -20,
+                    to: 20,
+                    yfrom:0,
+                    yto:0,
+                    rotfrom:0,
+                    rotto:0,
+                    //size: 22.5,
+                    size: 6,
+                    smooth: 1,
+                    time: 1,
+                    transition: 0,
+                    speed: 1,
+                    posx: 0,
+                    posy: 0, //-1
+                    posz: 0,
+                    rotation: -90                 //model rotation x
+                },
+                g: {
+                    modelpath: 'models/scout/',
+                    modelfile: '7.gltf',
+                    color: 0xff0000,
+                    from: 20,
+                    to: -20,
+                    yfrom:0,
+                    yto:0,
+                    rotfrom:45,
+                    rotto:-45,
+                    //size: 10,
+                    size: 6,
+                    smooth: 1,
+                    time: 1,
+                    transition: 0.5,
+                    speed: 1,
+                    posx: 0,
+                    posy: 0,
+                    posz: 0,
+                    rotation: -90                 //model rotation x
+                },
+                h: {
+                    modelpath: 'models/phasma/',
+                    modelfile: '8.gltf',
+                    color: 0x103CAB,
+                    from: 20,
+                    to: -20,
+                    yfrom:0,
+                    yto:0,
+                    rotfrom:0,
+                    rotto:0,
+                    //size: 0.02,
+                    size: 6,
+                    smooth: 1,
+                    time: 1,
+                    transition: 0,
+                    speed: 1,
+                    posx: 0,
+                    posy: 0,
+                    posz: 0,
+                    rotation: -90                 //model rotation x
+                },
+                i: {
+                    modelpath: 'models/mando/',
+                    modelfile: '9.gltf',
+                    color: 0xff0000,
+                    from: -20,
+                    to: 20,
+                    yfrom:0,
+                    yto:0,
+                    rotfrom:0,
+                    rotto:0,
+                    //size: 12,
+                    size: 6,
+                    smooth: 1,
+                    time: 1,
+                    transition: 0,
+                    speed: 1,
+                    posx: 0,
+                    posy: 0,
+                    posz: 0,
+                    rotation: -90                 //model rotation x
+                }
+            };
+
+			init();
+            createScenes();
+            setupTimeline();
+            
+            var totalSeconds = 0;
+            var elemDiv = document.createElement('div');
+            elemDiv.id = 'timer';
+            document.body.appendChild(elemDiv);
+            
+            function countTimer() {
+                       ++totalSeconds;
+                       var hour = Math.floor(totalSeconds /3600);
+                       var minute = Math.floor((totalSeconds - hour*3600)/60);
+                       var seconds = totalSeconds - (hour*3600 + minute*60);
+                       if(hour < 10)
+                         hour = "0"+hour;
+                       if(minute < 10)
+                         minute = "0"+minute;
+                       if(seconds < 10)
+                         seconds = "0"+seconds;
+                        
+                        document.getElementById("timer").innerHTML = hour + ":" + minute + ":" + seconds;
+            }
+            
+            //start background music
+            function playsound() {
+                sound.play();
+            }
+            
+            //initialise GUI for realtime debuging
+            function initGUI() {
+
+				const gui = new GUI();
+                
+                gui.add( transitionParams, "pause" ).listen().onChange( function ( value ) {
+					tl.pause();
+                    fadetl.pause();
+                    sound.pause();
+                    transitionParams.play = false;
+				} );
+                
+                gui.add( transitionParams, "play" ).listen().onChange( function ( value ) {
+					tl.play();
+                    fadetl.play();
+                    sound.play();
+                    transitionParams.pause = false;
+				} );
+                
+                gui.add( transitionParams, "restart" ).listen().onChange( function ( value ) {
+					tl.pause(0);
+                    fadetl.pause(0);
+                    sound.pause(0);
+                    
+                    scenes["a"].scene.remove(scenes["a"].scene.getObjectByName("Scene"));
+                    scenes["a"].scene.add(loaded["a"].gltf.scene);
+                    
+                    scenes["b"].scene.remove(scenes["b"].scene.getObjectByName("Scene"));
+                    scenes["b"].scene.add(loaded["b"].gltf.scene);
+                    
+                    transitionParams.pause = true;
+                    transitionParams.play = false;
+                    tl.progress( 0/100 );
+                    fadetl.progress( 0/100 );
+                    let showlogo = false;
+                    let rndrstop = false;   
+				} );
+                
+                gui.add( transitionParams, "timeline", 0, 100, 0.01 ).listen().onChange( function ( value ) {
+                    tl.progress( value/100 );
+				} );
+                
+                gui.add( transitionParams, "transition", 0, 1, 0.01 ).listen();
+                gui.add( transitionParams, "volume", 0, 1, 0.01 ).onChange( function ( value ) {
+                    sound.setVolume(transitionParams.volume);
+				} );
+
+			}
+
+			function init() {
+
+				renderer = new THREE.WebGLRenderer( { antialias: true } );
+				renderer.setPixelRatio( window.devicePixelRatio );
+                renderer.setSize( windowWidth, windowHeight );
+                renderer.shadowMap.enabled = true;
+				//renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+				//renderer.outputEncoding = THREE.sRGBEncoding;
+                renderer.domElement.id = 'swintro';
+				document.body.appendChild( renderer.domElement );
+		
+				RectAreaLightUniformsLib.init();
+
+				matStdObjects = new THREE.MeshStandardMaterial( { color: 0xffffff, roughness: 0.14, metalness: 1 } );
+                
+                settings = {
+                    metalness: 1.0,
+                    roughness: 0.14,
+                    aoMapIntensity: 1.0,
+                    envMapIntensity: 1.0,
+                    pointlightPositionx: 3.0,
+                    pointlightPositiony: 0.0,
+                    pointlightPositionz: 0.0,
+			    };
+				
+				//window.addEventListener( 'resize', onResize, false );
+
+				stats = new Stats();
+				document.body.appendChild( stats.dom );
+                
+                var overlay = document.createElement('div');
+                overlay.id = 'textoverlay';
+                document.body.appendChild(overlay);
+                var overlayDiv = document.getElementById("textoverlay");
+                var content = document.createTextNode("Loading");
+                overlayDiv.appendChild(content);
+
+			}
+            
+            //check if loading of model assets has finished
+            function checkIfFinished(){
+                var childcount = 0;                
+                
+                Object.keys(scenes).forEach(key => {
+                    childcount += Object.keys(scenes[key].scene.children).length;
+                    
+                    if (childcount == 3 * Object.keys(scenes).length){    
+                        console.log("loading done");
+                    }
+                    
+                });
+                return(childcount == (3 * Object.keys(scenes).length));
+            }
+            
+            //rotate object
+            function rotateObject(object, degreeX=0, degreeY=0, degreeZ=0) {
+                object.rotateX(THREE.Math.degToRad(degreeX));
+                object.rotateY(THREE.Math.degToRad(degreeY));
+                object.rotateZ(THREE.Math.degToRad(degreeZ));
+            }
+            
+            //position object
+            function positionObject(object, posX=0, posY=0, posZ=0) {
+                object.translateX(posX);
+                object.translateY(posY);
+                object.translateZ(posZ);
+            }
+
+            //create a and b scene
+            function createScenes() {
+                Object.keys(sceneparam).forEach(key => {
+                    if (key == "a" || key == "b"){
+                        scenes[key] = new introScene( key, sceneparam[key].color, sceneparam[key].from, sceneparam[key].to, sceneparam[key].size);
+                    }
+                    
+                    loaded[key] = new loadmodel(sceneparam[key].modelpath, sceneparam[key].modelfile, sceneparam[key].size, sceneparam[key].smooth, key, sceneparam[key].rotation);
+                });
+                
+                //could prob be replaced by promise
+                var timeout = setInterval(function() {
+                    if(checkIfFinished()) {
+                        clearInterval(timeout); 
+                        transition = new Transition( scenes );
+                        animate();
+                        tl.play();
+                        fadetl.play();
+                        soundtl.play();
+                        var timerVar = setInterval(countTimer, 1000);
+                    }
+                }, 100);
+            }
+            
+            function render() {
+                if(!rndrstop){
+				    transition.render();
+                }
+			}
+            
+            //loads svg file and creates object
+            function loadsvg(svgfile){
+                let loader = new SVGLoader();
+                // instantiate a loader
+                loader = new SVGLoader();
+
+                // load a SVG resource
+                loader.load(svgfile, function ( data ) {                    
+                    const material =  new THREE.MeshStandardMaterial( { color: 0xffffff, roughness: 0.14, metalness: 1, side: THREE.DoubleSide } );
+
+                    // Loop through all of the parsed paths
+                    data.paths.forEach((path, i) => {
+                      const shapes = path.toShapes(true);
+
+                      // Each path has array of shapes
+                      shapes.forEach((shape, j) => {
+                        // Finally we can take each shape and extrude it
+                        const geometry = new THREE.ExtrudeGeometry(shape, {
+                            depth: 10,
+                            bevelEnabled: true,
+                            bevelSize: 8,
+                            bevelSegments: 5,
+                            bevelThickness: 6,
+                            bevelOffset: -7
+                        });
+
+                        // Create a mesh and add it to the group
+                        const mesh = new THREE.Mesh(geometry, material);
+
+                        svgGroup.add(mesh);
+                      });
+                    });
+                    
+                    // Get group's size
+                    const box = new THREE.Box3().setFromObject(svgGroup);
+                    const size = new THREE.Vector3();
+                    box.getSize(size);
+
+                    const yOffset = size.y / -2;
+                    const xOffset = size.x / -2;
+                    const zOffset = size.z / -2;
+
+                    // Offset all of group's elements, to center them
+                    svgGroup.children.forEach(item => {
+                      item.position.x = xOffset;
+                      item.position.y = yOffset;
+                      item.position.z = zOffset;
+                    });
+
+                    logoscene.add(svgGroup);
+                    
+                    rotateObject(svgGroup, 0, 180, 180);
+                    
+                    const cubegeometry = new THREE.BoxGeometry( 10, 10, 10 );
+                    const cube = new THREE.Mesh( cubegeometry, material );
+                    logoscene.add( cube );
+                        
+                    },
+                    // called when loading is in progresses
+                    function ( xhr ) {
+                        console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+                    },
+                    // called when loading has errors
+                    function ( error ) {
+                        console.log( 'An error happened' );
+                    }
+                );
+            }
+            
+            //loads models
+            function loadmodel(modelpath, modelfile, meshsize, smooth, scenekey, rotation) {
+                
+                this.smooth = smooth;
+                
+                this.loader = new GLTFLoader().setPath(modelpath);
+                this.loader.load( modelfile, function ( gltf ) {
+                    
+                    this.gltf = gltf;
+
+                    this.gltf.scene.traverse( function ( child ) {
+                        if ( child.isMesh ) {
+                            child.material = matStdObjects;
+                            child.castShadow = true;
+				            child.receiveShadow = true;
+                        }
+                    });
+
+                    this.gltf.scene
+
+                    if(this.smooth == 1) {
+                        setSmoothGeometry(this.gltf.scene);
+                    }
+
+                    function setSmoothGeometry(obj) {
+                        obj.traverse(node => {
+                            if ('geometry' in node) {
+                                const tempGeometry = new THREE.Geometry().fromBufferGeometry( node.geometry );
+                                tempGeometry.mergeVertices();
+                                tempGeometry.computeVertexNormals();
+                                node.geometry = new THREE.BufferGeometry().fromGeometry( tempGeometry );
+                            }
+                        })
+                    }
+                    
+                    this.gltf.scene.castShadow = true;
+				    this.gltf.scene.receiveShadow = true;
+
+                    rotateObject(this.gltf.scene, 0, rotation, 0);
+                    console.log("rotated");
+                    console.log(rotation);
+                    this.gltf.scene.scale.set( meshsize, meshsize, meshsize )
+                    positionObject(this.gltf.scene, sceneparam[scenekey].posx, sceneparam[scenekey].posy, sceneparam[scenekey].posz);
+                    if (scenekey == "a" || scenekey == "b") {
+                        scenes[scenekey].scene.add( this.gltf.scene );
+                    }
+                    
+                    
+                }.bind(this));
+            }
+            
+            function createLights(ltype,lintensity,) {
+                
+                let light;
+                if (ltype == 0){
+                    light = new THREE.DirectionalLight( 0xffffff, lintensity );
+                    light.castShadow = true; // default false
+                    light.shadow.bias = 0.00005 
+                    //light.shadowBias = -0.001;
+                    light.shadow.mapSize.width = 1024;
+                    light.shadow.mapSize.height = 1024;
+                }
+                else {
+                    light = new THREE.RectAreaLight( 0xffffff, lintensity, 5, 1 );
+                    light.lookAt( origin );
+                }
+                light.position.set( 0, 4, -2 );
+                this.scene.add( light );
+            }
+            
+            //creates mainscene
+            function introScene(scenekey, sabercolor, from, to, meshsize) {
+                this.camera = new THREE.PerspectiveCamera( 50, windowWidth / windowHeight, 0.1, 1000 );
+                this.camera.position.z = 5;
+                
+                // Setup scene
+                this.scene = new THREE.Scene();
+                
+//              topLight = new THREE.RectAreaLight( 0xffffff, 0.05, 10, 1 );
+//				topLight.position.set( 0, 3, 0 );
+//				this.scene.add( topLight );  
+//              topLight.lookAt( origin );
+                
+                const sphere = new THREE.SphereBufferGeometry( 0.5, 16, 8 );
+                
+                const light = new THREE.DirectionalLight( 0xffffff, 1 );
+                //light.add( new THREE.Mesh( sphere, new THREE.MeshBasicMaterial( { color: 0xff0040 } ) ) );
+                light.position.set( 0, 4, -2 );
+                light.castShadow = true; // default false
+                light.shadow.bias = 0.00005 
+                //light.shadowBias = -0.001;
+                light.shadow.mapSize.width = 1024;
+                light.shadow.mapSize.height = 1024;
+                //light.target = this.scene.children[0];
+                this.scene.add( light );
+                
+                //const fill origin = new THREE.Vector3();
+                                
+                fillLight1 = new THREE.RectAreaLight( 0xffffff, 1, 5, 1 );
+                //fillLight1.castShadow = true; // default false
+//				this.scene.add( fillLight1 );
+                fillLight1.position.set( 0, 4, 3 );
+                
+//              fillLight1 = new THREE.RectAreaLight( 0xffffff, 0.10, 1, 5 );
+//				this.scene.add( fillLight1 );
+//              fillLight1.position.set( -5, 1, -10 );
+                
+                fillLight2 = new THREE.RectAreaLight( 0xffffff, 0.10, 1, 5 );
+				//this.scene.add( fillLight2 );
+                fillLight2.position.set( 5, 1, -10);
+                
+                fillLight1.lookAt( origin );  
+                fillLight2.lookAt( origin );
+                
+//              fillLight1Helper = new RectAreaLightHelper( fillLight1 );
+//				fillLight1.add( fillLight1Helper );
+                
+                fillLight2Helper = new RectAreaLightHelper( fillLight2 );
+				fillLight2.add( fillLight2Helper );
+
+				rectLight[scenekey] = new THREE.RectAreaLight( sabercolor, 4, 1, 20 );
+				rectLight[scenekey].position.set( from, 0, 3 );
+				this.scene.add( rectLight[scenekey] );
+                
+//              topLightHelper = new RectAreaLightHelper( topLight );
+//				topLight.add( topLightHelper );
+
+				//rectLightHelper = new RectAreaLightHelper( rectLight[scenekey] );
+				//rectLight.add( rectLightHelper );
+                
+                const renderTargetParameters = { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBFormat };
+                this.fbo = new THREE.WebGLRenderTarget( windowWidth, windowHeight, renderTargetParameters );
+                                
+                this.render = function ( rtt ) {
+					renderer.setClearColor( this.clearColor );
+					if ( rtt ) {
+						renderer.setRenderTarget( this.fbo );
+                        //this.fbo.texture.encoding = THREE.sRGBEncoding;
+						renderer.clear();
+						renderer.render( this.scene, this.camera );
+					} else {
+						renderer.setRenderTarget( null );
+						renderer.render( this.scene, this.camera );
+					}
+				};
+            }
+            
+            function initLogoScene() {
+                loadsvg(svgfile);
+                
+                transitionParams.animateTransition = false;
+                showlogo = true;
+                
+                logoscene.add( light1 );
+                logoscene.add( light1_2 );
+                logoscene.add( light1_3 );
+                logoscene.add( light2 );
+                logoscene.add( light3 );
+                logoscene.add( light4 );
+                logoscene.add( light4_2 );
+                logoscene.add( light4_3 );
+                logoscene.add( light5 );
+                logoscene.add( light5_2 );
+                logoscene.add( light5_3 );
+                
+                light1.position.set( -400, 0, 0 );
+                light1_2.position.set( -400, 0, 0 );
+                light1_3.position.set( -400, 0, 0 );
+                light2.position.set( 100, 0, 0 );
+                light3.position.set( 300, 0, 0 );
+                light4.position.set( 500, 0, 0 );
+                light4_2.position.set( 500, 0, 0 );
+                light4_3.position.set( 500, 0, 0 );
+                light5.position.set( 0, 0, 0 );
+                light5_2.position.set( 0, 0, 0 );
+                light5_3.position.set( 0, 0, 0 );
+                
+                frontlight.position.set( 0, 0, -10.1 );
+                logoscene.add( frontlight );
+
+                frontlight.lookAt( origin );
+                frontlight.add( frontlightHelper );
+            }
+            
+            // GSAP Timeline
+            function setupTimeline(){
+                tl = new TimelineMax({paused:true});
+                tl.timeScale( tlScale ); 
+                let tlcount = 0;
+                tl.add("start");
+                
+                fadetl = new TimelineMax({paused:true});
+                fadetl.timeScale( tlScale ); 
+//              fadetl.to(transitionParams, 1, {transition: 1}, 1);
+                
+                soundtl = new TimelineMax({paused:true});
+                soundtl.add(playsound, 0.5);
+                
+                Object.keys(sceneparam).forEach(key => {
+                    tlcount++;
+                    tltimer += sceneparam[key].time;
+                    let rectLightnum = tlcount % 2 == 0 ? "b" :  "a";
+                    tl.fromTo(rectLight[rectLightnum].position, sceneparam[key].speed, {
+                        x: sceneparam[key].from, y: sceneparam[key].yfrom},{
+                        x: sceneparam[key].to, y: sceneparam[key].yto, ease: Power3.easeOut
+                    } );
+                    tl.fromTo(rectLight[rectLightnum].rotation, sceneparam[key].speed, {
+                        x: Math.PI * (sceneparam[key].rotfrom/45)
+                    }, {
+                        x: Math.PI * (sceneparam[key].rotto/45)
+                    }, "-="+sceneparam[key].speed);
+                    
+                    let fadeto = rectLightnum == "a" ? 0 : 1;
+                    fadetl.to(transitionParams, 0.5, {transition: fadeto}, "+="+((sceneparam[key].time-0.5)-sceneparam[key].transition)+"");
+                    
+                    if(tlcount >= 3){
+                        tl.add(function(){
+                            rectLight[rectLightnum].color.setHex(sceneparam[key].color);
+                        }, tltimer-1.7);
+                        tl.add (function(){
+                        scenes[rectLightnum].scene.remove(scenes[rectLightnum].scene.getObjectByName("Scene"));
+                            scenes[rectLightnum].scene.add(loaded[key].gltf.scene);
+                        }, tltimer-1.7);
+                    }
+                    if(tlcount >= (Object.keys(sceneparam).length-1)) {
+                        tl.add (function(){
+                        rectLightnum = rectLightnum == "a" ? "b" :  "a"; 
+                        scenes[rectLightnum].scene.remove(scenes[rectLightnum].scene.getObjectByName("Scene"));
+                        }, tltimer-1.7);
+                    }
+                    if(tlcount >= Object.keys(sceneparam).length) {
+                            tl.add (function(){
+                                initLogoScene();
+                            });
+                            tl.add("logo");
+                            tl.to(svgGroup.scale, 8, {x:1.2, y:1.2, z:1.2}, "logo");
+                            tl.to(light1, 4, {distance: 500}, "logo");
+                            tl.to(light1_2, 4, {distance: 500}, "logo");
+                            tl.to(light1_3, 4, {distance: 500}, "logo");
+                            tl.to(light1_2.position, 4, {y: -300}, "logo");
+                            tl.to(light1_3.position, 4, {y: 300}, "logo");
+                            tl.to(light2, 4, {distance: 500}, "logo");
+                            tl.to(light3, 4, {distance: 500}, "logo");
+                            tl.to(light4, 4, {distance: 500}, "logo");
+                            tl.to(light4_2, 4, {distance: 500}, "logo");
+                            tl.to(light4_3, 4, {distance: 500}, "logo");
+                            tl.to(light4_2.position, 4, {y: -300}, "logo");
+                            tl.to(light4_3.position, 4, {y: 300}, "logo");
+                            tl.to(light5, 4, {distance: 500}, "logo");
+                            tl.to(light5_2, 4, {distance: 500}, "logo");
+                            tl.to(light5_2.position, 4, {y: -300}, "logo");
+                            tl.to(light5_3, 4, {distance: 500}, "logo");
+                            tl.to(light5_3.position, 4, {y: 300}, "logo");
+                            tl.to(frontlight, 4, {intensity: 1}, "logo+=4");
+                            tl.to([light1,light2,light3,light4,light5, light4_2, light1_2, light1_3, light4_3, light5_2, light5_3], 3, {distance: 1, intensity: 0}, "logo+=4");
+                            tl.to(frontlight, 1, {intensity: 0, onComplete: renderstop}, "logo+=7");
+                        }
+                });
+                
+                initGUI();
+            }
+            
+            function renderstop() {
+                rndrstop = true;
+            }
+
+			function onResize() {
+				renderer.setSize( windowWidth, windowHeight );
+                camera.aspect = ( windowWidth / windowHeight );
+				camera.updateProjectionMatrix();
+			}
+            
+            function animate() {
+				requestAnimationFrame( animate );
+				render();
+				stats.update();
+			}
+            
+            function Transition( scenes ) {
+				this.scene = new THREE.Scene();
+
+				this.cameraOrtho = new THREE.OrthographicCamera( windowWidth / - 2, windowWidth / 2, windowHeight / 2, windowHeight / - 2, - 10, 10 );
+
+				this.textures = [];
+
+				const loader = new THREE.TextureLoader();
+
+				for ( let i = 0; i < 6; i ++ )
+					this.textures[ i ] = loader.load( 'textures/transition/transition' + ( i + 1 ) + '.png' );
+
+				this.quadmaterial = new THREE.ShaderMaterial( {
+
+					uniforms: {
+
+						tDiffuse1: {
+							value: null
+						},
+						tDiffuse2: {
+							value: null
+						},
+                        tDiffuse3: {
+							value: null
+						},
+						mixRatio: {
+							value: 0.0
+						},
+						threshold: {
+							value: 0.1
+						},
+						useTexture: {
+							value: 0
+						},
+						tMixTexture: {
+							value: this.textures[ 0 ]
+						}
+					},
+					vertexShader: [
+
+						"varying vec2 vUv;",
+
+						"void main() {",
+
+						"vUv = vec2( uv.x, uv.y );",
+						"gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );",
+
+						"}"
+
+					].join( "\n" ),
+					fragmentShader: [
+
+						"uniform float mixRatio;",
+
+						"uniform sampler2D tDiffuse1;",
+						"uniform sampler2D tDiffuse2;",
+						"uniform sampler2D tMixTexture;",
+
+						"uniform int useTexture;",
+						"uniform float threshold;",
+
+						"varying vec2 vUv;",
+
+						"void main() {",
+
+						"	vec4 texel1 = texture2D( tDiffuse1, vUv );",
+						"	vec4 texel2 = texture2D( tDiffuse2, vUv );",
+						"	gl_FragColor = mix( texel2, texel1, mixRatio );",
+
+						"}"
+
+					].join( "\n" )
+
+				} );
+
+				const quadgeometry = new THREE.PlaneBufferGeometry( windowWidth, windowHeight );
+
+				this.quad = new THREE.Mesh( quadgeometry, this.quadmaterial );
+				this.scene.add( this.quad );
+                    
+				// Link both scenes and their FBOs
+				this.sceneA = scenes.a;
+				this.sceneB = scenes.b;
+
+				this.quadmaterial.uniforms.tDiffuse1.value = this.sceneA.fbo.texture;
+				this.quadmaterial.uniforms.tDiffuse2.value = this.sceneB.fbo.texture;
+
+				this.setTextureThreshold = function ( value ) {
+					this.quadmaterial.uniforms.threshold.value = value;
+				};
+
+				this.useTexture = function ( value ) {
+					this.quadmaterial.uniforms.useTexture.value = value ? 1 : 0;
+				};
+
+				this.setTexture = function ( i ) {
+					this.quadmaterial.uniforms.tMixTexture.value = this.textures[ i ];
+				};
+
+				this.render = function() {
+                    transitionParams.timeline = tl.progress()*100;
+					this.quadmaterial.uniforms.mixRatio.value = transitionParams.transition;
+
+					// Prevent render both scenes when it's not necessary
+					if ( transitionParams.transition == 0 && !showlogo ) {
+						this.sceneB.render( false );
+					} else if ( transitionParams.transition == 1 && !showlogo ) {
+						this.sceneA.render( false );
+					} else if (showlogo && !rndrstop) {
+                        renderer.clear();
+                        renderer.outputEncoding = THREE.sRGBEncoding;
+						renderer.render( logoscene, this.cameraOrtho );
+                    } else if(rndrstop) {
+                        renderer.clear();
+                    } else {
+						// When 0<transition<1 render transition between two scenes
+						this.sceneA.render( true );
+						this.sceneB.render( true );
+						renderer.setRenderTarget( null );
+						renderer.clear();
+						renderer.render( this.scene, this.cameraOrtho );
+					}
+				};
+
+			}
+
+		</script>
+	</body>
+</html>
