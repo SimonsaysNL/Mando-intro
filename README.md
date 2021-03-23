@@ -49,6 +49,8 @@ The models have been replaced to keep size low. These can be replaced with your 
 * [GSAP](https://greensock.com/gsap/)
 * [Blender](https://www.blender.org/)
 
+[Number models by imaginibus](https://sketchfab.com/3d-models/birthday-balloons-numbers-16632cdfe1054f1bb2b4b9124417f093)
+
 
 <!-- CONTACT -->
 ## Contact
