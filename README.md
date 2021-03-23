@@ -40,7 +40,7 @@ Several 3d models are loaded in and light and animation is specified for each on
 A mix shader is used to blend scenes during transitions.
 At the end a svg logo is shown with light effects to mimic the new logo.
 
-The models have been replaced to keep size low. These can be replaced with your own models.
+The models in the repository have been replaced to keep size low. These can be replaced with your own models.
 
 
 ### Built With
