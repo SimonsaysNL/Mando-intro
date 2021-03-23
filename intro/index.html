@@ -15,7 +15,7 @@
             import * as THREE from '../build/three.module.js';
             import { GLTFLoader } from './jsm/loaders/GLTFLoader.js';
             import { GUI } from './jsm/libs/dat.gui.module.js';
-			import Stats from './jsm/libs/stats.module.js';
+            import Stats from './jsm/libs/stats.module.js';
             import { RectAreaLightHelper } from './jsm/helpers/RectAreaLightHelper.js';
             import { RectAreaLightUniformsLib } from './jsm/lights/RectAreaLightUniformsLib.js';
             import { BufferGeometryUtils } from './jsm/utils/BufferGeometryUtils.js';
@@ -63,9 +63,8 @@
             let frontlightHelper = new RectAreaLightHelper( frontlight );
             
             let loaded = {};
-
-			let param = {};
-			let stats;
+            let param = {};
+            let stats;
             let sceneparam = {};
             
             let showlogo = false;
@@ -74,19 +73,19 @@
             
             let transition;
             const transitionParams = {
-				"useTexture": false,
-				"transition": 1,
-				"transitionSpeed": 10,
-				"texture": 5,
-				"loopTexture": true,
-				"animateTransition": true,
-				"textureThreshold": 0.3,
+                "useTexture": false,
+                "transition": 1,
+                "transitionSpeed": 10,
+                "texture": 5,
+                "loopTexture": true,
+                "animateTransition": true,
+                "textureThreshold": 0.3,
                 "pause": false,
                 "play": true,
                 "restart": false,
                 "timeline": 0,
                 "volume": 1
-			};
+            };
             
             let tl;
             let soundtl;
@@ -296,7 +295,7 @@
                 }
             };
 
-			init();
+            init();
             createScenes();
             setupTimeline();
             
@@ -328,24 +327,24 @@
             //initialise GUI for realtime debuging
             function initGUI() {
 
-				const gui = new GUI();
+                const gui = new GUI();
                 
                 gui.add( transitionParams, "pause" ).listen().onChange( function ( value ) {
-					tl.pause();
+                    tl.pause();
                     fadetl.pause();
                     sound.pause();
                     transitionParams.play = false;
-				} );
+                } );
                 
                 gui.add( transitionParams, "play" ).listen().onChange( function ( value ) {
-					tl.play();
+				    tl.play();
                     fadetl.play();
                     sound.play();
                     transitionParams.pause = false;
-				} );
+                } );
                 
                 gui.add( transitionParams, "restart" ).listen().onChange( function ( value ) {
-					tl.pause(0);
+				    tl.pause(0);
                     fadetl.pause(0);
                     sound.pause(0);
                     
@@ -361,33 +360,33 @@
                     fadetl.progress( 0/100 );
                     let showlogo = false;
                     let rndrstop = false;   
-				} );
+                } );
                 
                 gui.add( transitionParams, "timeline", 0, 100, 0.01 ).listen().onChange( function ( value ) {
                     tl.progress( value/100 );
-				} );
+                } );
                 
                 gui.add( transitionParams, "transition", 0, 1, 0.01 ).listen();
                 gui.add( transitionParams, "volume", 0, 1, 0.01 ).onChange( function ( value ) {
                     sound.setVolume(transitionParams.volume);
-				} );
+                } );
 
-			}
+            }
 
-			function init() {
+            function init() {
 
-				renderer = new THREE.WebGLRenderer( { antialias: true } );
-				renderer.setPixelRatio( window.devicePixelRatio );
+                renderer = new THREE.WebGLRenderer( { antialias: true } );
+                renderer.setPixelRatio( window.devicePixelRatio );
                 renderer.setSize( windowWidth, windowHeight );
                 renderer.shadowMap.enabled = true;
-				//renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-				//renderer.outputEncoding = THREE.sRGBEncoding;
+                //renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+                //renderer.outputEncoding = THREE.sRGBEncoding;
                 renderer.domElement.id = 'swintro';
-				document.body.appendChild( renderer.domElement );
+                document.body.appendChild( renderer.domElement );
 		
 				RectAreaLightUniformsLib.init();
 
-				matStdObjects = new THREE.MeshStandardMaterial( { color: 0xffffff, roughness: 0.14, metalness: 1 } );
+                matStdObjects = new THREE.MeshStandardMaterial( { color: 0xffffff, roughness: 0.14, metalness: 1 } );
                 
                 settings = {
                     metalness: 1.0,
@@ -397,12 +396,12 @@
                     pointlightPositionx: 3.0,
                     pointlightPositiony: 0.0,
                     pointlightPositionz: 0.0,
-			    };
+                };
 				
-				//window.addEventListener( 'resize', onResize, false );
+                //window.addEventListener( 'resize', onResize, false );
 
-				stats = new Stats();
-				document.body.appendChild( stats.dom );
+                stats = new Stats();
+                document.body.appendChild( stats.dom );
                 
                 var overlay = document.createElement('div');
                 overlay.id = 'textoverlay';
@@ -410,8 +409,7 @@
                 var overlayDiv = document.getElementById("textoverlay");
                 var content = document.createTextNode("Loading");
                 overlayDiv.appendChild(content);
-
-			}
+            }
             
             //check if loading of model assets has finished
             function checkIfFinished(){
@@ -470,7 +468,7 @@
                 if(!rndrstop){
 				    transition.render();
                 }
-			}
+            }
             
             //loads svg file and creates object
             function loadsvg(svgfile){
